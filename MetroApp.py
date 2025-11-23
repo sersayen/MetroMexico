@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageTk
-from IA.metro_modelo import Graph, calcular_ruta  # Importamos el grafo y la función
+from busqueda_IA import Graph, calcular_ruta  # Importamos el grafo y la función
 
 class MetroApp:
     def __init__(self, root):
@@ -39,7 +39,7 @@ class MetroApp:
         self.tiempo_label = tk.Label(frame_controles, text="", wraplength=250, anchor="center", justify="center", bg="white")
         self.tiempo_label.grid(row=4, column=0, columnspan=2, pady=10, sticky="ew")
 
-        image_path = "/Users/rcc/Documents/IA/Metro.png"
+        image_path = "Metro.png"
         image = Image.open(image_path)
         image = image.resize((int(screen_width * 2 / 3), int(screen_height * 2 / 3)), Image.LANCZOS)
         photo = ImageTk.PhotoImage(image)
