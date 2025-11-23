@@ -3,7 +3,15 @@ from tkinter import ttk, messagebox
 from PIL import Image, ImageTk
 from datetime import datetime
 import busqueda_IA as modulo_IA  # Importamos el grafo y la función
+import os, sys
 
+def resource_path(relative_path):
+    #Obtiene el path absoluto de recursos, funciona en .py y en .exe
+        try:
+            base_path = sys._MEIPASS   # carpeta temporal creada por PyInstaller
+        except Exception:
+            base_path = os.path.abspath(".")
+        return os.path.join(base_path, relative_path)
 FRANJAS_HORARIAS = [
     (7, 0, 9, 0),
     (18, 0, 20, 0)
@@ -66,7 +74,7 @@ class MetroApp:
         self.tiempo_label.grid(row=8, column=0, columnspan=2, pady=10, sticky="ew")
 
 
-        image_path = "Metro.png"
+        image_path = resource_path("Metro.png")
         image = Image.open(image_path)
         image_width, image_height = image.size
         max_width = int(screen_width // 2)
@@ -125,6 +133,7 @@ class MetroApp:
         except Exception as e:
             self.resultado_label.config(text=f"Error inesperado: {e}")
             self.tiempo_label.config(text="")
+
 
 if __name__ == "__main__":
     root = tk.Tk()
