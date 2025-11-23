@@ -124,19 +124,16 @@ def penalizacion_total(path, salida):
                 total += penalizaciones_transbordo[actual]
     return total
 
-salida = "Insurgentes"
-destino = "Universidad"
 
-heuristica = get_heuristica(salida)
-camino = nx.astar_path(Graph, salida, destino, heuristic = heuristica, weight="weight")
-dist = nx.astar_path_length (Graph, salida, destino, heuristic = heuristica, weight="weight")
-
-penalizacion = penalizacion_total(camino, salida)
-print(f"Camino encontrado: {camino}")
-print(f"Tiempo empleado: {dist} minutos")
-print(f"Penalizaciones añadidas: {penalizacion} minutos")
-print(f"Tiempo total de trayecto: {dist + penalizacion} minutos")
+def calcular_ruta(salida, destino):
+    heuristica = get_heuristica(salida)
+    camino = nx.astar_path(Graph, salida, destino, heuristic=heuristica, weight="weight")
+    dist = nx.astar_path_length(Graph, salida, destino, heuristic=heuristica, weight="weight")
+    penalizacion = penalizacion_total(camino, salida)
+    tiempo_total = dist + penalizacion
+    return camino, tiempo_total
 
 
 #print(nx.astar_path(Graph, "Polanco", "Universidad", heuristic = heuristica_final, weight="weight"))
 #print(nx.astar_path_length (Graph, "Polanco", "Universidad", heuristic = heuristica_final, weight="weight"))
+
