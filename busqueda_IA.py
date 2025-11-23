@@ -89,6 +89,11 @@ dificil_acceso = {
 es_discapacitado = False
 penalizacion_discapacidad = 3
 
+FRANJAS_HORARIAS = [
+    (7, 0, 9, 0),
+    (18, 0, 20, 0)
+]
+FACTOR_NORMAL = 1.0
 FACTOR_HORA_PUNTA = 1.2
 factor_hora = FACTOR_HORA_PUNTA
 
