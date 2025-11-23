@@ -86,9 +86,11 @@ dificil_acceso = {
     "Chapultepec", "Insurgentes", "Etiopia", "Eugenia", "Division del Norte",
     "Coyoacan", "Lazaro Cardenas",
 }
+es_discapacitado = False
+penalizacion_discapacidad = 3
 
-estado = "hora_punta"
-factor_hora = 1.2 if estado == "hora_punta" else 1.0
+FACTOR_HORA_PUNTA = 1.2
+factor_hora = FACTOR_HORA_PUNTA
 
 
 def get_heuristica(start_node):
@@ -104,15 +106,15 @@ def get_heuristica(start_node):
         if actual in penalizaciones_transbordo:
             penalizacion_transbordos += penalizaciones_transbordo[actual]
         if actual in dificil_acceso:
-            penalizacion_accesibilidad += 3
+            penalizacion_accesibilidad += penalizacion_discapacidad
         return h + penalizacion_transbordos + penalizacion_accesibilidad
     return heuristica_final
 
 def penalizacion_total(path, salida):
     total = 0
     path_len = len(path)
-    if salida in dificil_acceso:
-        total += 3
+    if salida in dificil_acceso and es_discapacitado:
+        total += penalizacion_discapacidad
     for i in range(1, path_len - 1):
         actual = path[i]
         prev = path[i - 1]
@@ -124,16 +126,13 @@ def penalizacion_total(path, salida):
                 total += penalizaciones_transbordo[actual]
     return total
 
-
 def calcular_ruta(salida, destino):
+    G_temporal = Graph.copy()
+    for u, v, data in G_temporal.edges(data=True):
+        data['weight'] = data['weight'] * factor_hora
     heuristica = get_heuristica(salida)
-    camino = nx.astar_path(Graph, salida, destino, heuristic=heuristica, weight="weight")
-    dist = nx.astar_path_length(Graph, salida, destino, heuristic=heuristica, weight="weight")
+    camino = nx.astar_path(G_temporal, salida, destino, heuristic=heuristica, weight="weight")
+    dist = nx.astar_path_length(G_temporal, salida, destino, heuristic=heuristica, weight="weight")
     penalizacion = penalizacion_total(camino, salida)
     tiempo_total = dist + penalizacion
     return camino, tiempo_total
-
-
-#print(nx.astar_path(Graph, "Polanco", "Universidad", heuristic = heuristica_final, weight="weight"))
-#print(nx.astar_path_length (Graph, "Polanco", "Universidad", heuristic = heuristica_final, weight="weight"))
-
