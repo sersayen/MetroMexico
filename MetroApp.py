@@ -1,11 +1,21 @@
-import tkinter as tk
-from tkinter import ttk, messagebox
-from PIL import Image, ImageTk
-from datetime import datetime
-import networkx as nx
+import tkinter as tk # interfaz
+from tkinter import ttk, messagebox 
+from PIL import Image, ImageTk # añadir la imagen
+from datetime import datetime 
+import networkx as nx  # A*
 import busqueda_IA as modulo_IA  # Importamos el grafo y la función
+import os, sys
+
+# encuentra la ruta de la imagen en el .exe
+def ruta_recurso(relative_path):
+    try:
+        base_path = sys._MEIPASS  # guarda la ruta base si se ejecuta desde un .exe 
+    except Exception:
+        base_path = os.path.abspath(".")  # si no es .exe guarda la ruta desde la que se ejecuta el .py
+    return os.path.join(base_path, relative_path) # une la ruta base con la ruta relativa
 
 
+#INTERFAZ DE LA APLICACION
 class MetroApp:
     def __init__(self, root):
         root.title("MetroAPP")
@@ -13,11 +23,9 @@ class MetroApp:
         screen_height = root.winfo_screenheight()
         root.configure(bg="white")
 
-        half_screen_width = screen_width // 2
         header = tk.Frame(root, bg="red", height=60)
         header.pack(side="top", fill="x")
-        titulo = tk.Label(header, text="Mapa Metro CDMX", bg="red", fg="white",
-                          font=("Arial", 20, "bold"))
+        titulo = tk.Label(header, text="Mapa Metro CDMX", bg="red", fg="white", font=("Arial", 20, "bold"))
         titulo.pack(pady=10)
 
         frame_controles = tk.Frame(root, bg="white", width=300)
@@ -61,7 +69,7 @@ class MetroApp:
         self.tiempo_label.grid(row=8, column=0, columnspan=2, pady=10, sticky="ew")
 
 
-        image_path = "Metro.png"
+        image_path = ruta_recurso("Metro.png")
         image = Image.open(image_path)
         image_width, image_height = image.size
         max_width = int(screen_width // 2)
@@ -75,9 +83,13 @@ class MetroApp:
         label.image = photo
         label.pack(side="right", expand=True)
 
+
+
     def toggle_discapacidad(self):
         modulo_IA.es_discapacitado = self.es_discapacitado_var.get()
 
+    
+    
     def hora_punta(self, hora_str):
         try:
             h, m = map(int, hora_str.split(':'))
@@ -99,10 +111,13 @@ class MetroApp:
         inicio = self.estacion_inicio.get()
         destino = self.estacion_destino.get()
         hora_str = self.hora_salida.get()
+
+
         if not(inicio and destino and hora_str):
             self.resultado_label.config(text="Debe rellenar los campos de origen, destino y hora de salida.")
             self.tiempo_label.config(text="")
             return
+        
         nodos_validos = modulo_IA.Graph.nodes
 
         if inicio not in nodos_validos:
@@ -115,10 +130,13 @@ class MetroApp:
             return 
         
         factor, estado = self.hora_punta(hora_str)
+        
         if factor is None:
             return
+        
         modulo_IA.factor_hora = factor
         self.afluencia_status_label.config(text=f"Afluencia: {estado}")
+        
         try:
             camino, tiempo_total = modulo_IA.calcular_ruta(inicio, destino)
             self.resultado_label.config(text=f"Camino: {' → '.join(camino)}")
@@ -130,6 +148,8 @@ class MetroApp:
             self.resultado_label.config(text=f"Error inesperado: {e}")
             self.tiempo_label.config(text="")
 
+
+# PROGRAMA PRINCIPAL
 if __name__ == "__main__":
     root = tk.Tk()
     MetroApp(root)

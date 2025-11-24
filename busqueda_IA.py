@@ -2,6 +2,9 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 
+
+# CREACION DE GRAFO
+
 #Pesos: Tiempo en minutos entre las estaciones
 Graph = nx.Graph()
 #Linea 1
@@ -50,7 +53,10 @@ Graph.add_edge("Zapata", "Hospital 20 de Noviembre", weight = 2)
 Graph.add_edge("Zapata", "Parque de los Venados", weight = 1)
 Graph.add_edge("Eje Central", "Parque de los Venados", weight = 4)
 
-lineas = {
+
+
+# DEFINICION DE CONSTANTES
+LINEAS = {
     frozenset({"Observatorio", "Tacubaya"}) : "L1", frozenset({"Tacubaya", "Juanacatlan"}) : "L1",
     frozenset({"Juanacatlan", "Chapultepec"}) : "L1", frozenset({"Chapultepec", "Sevilla"}) : "L1",
     frozenset({"Sevilla", "Insurgentes"}) : "L1", frozenset({"Insurgentes", "Cuauhtemoc"}) : "L1",
@@ -71,31 +77,38 @@ lineas = {
     frozenset({"Zapata", "Parque de los Venados"}) : "L12", frozenset({"Eje Central", "Parque de los Venados"}) : "L12",
 
 }
-def get_linea(u, v):
-    return lineas.get(frozenset({u, v}))
 
-penalizaciones_transbordo = {
+PENALIZACIONES_TRASBORDO = {
     "Tacubaya": 5,
     "Centro Medico":4,
     "Zapata": 3,
     "Mixcoac":3,
-    "Balderas":3,
+    "Balderas":3
 }
-
-dificil_acceso = {
+DIFICIL_ACCESO = {
     "Chapultepec", "Insurgentes", "Etiopia", "Eugenia", "Division del Norte",
-    "Coyoacan", "Lazaro Cardenas",
+    "Coyoacan", "Lazaro Cardenas"
 }
-es_discapacitado = False
-penalizacion_discapacidad = 3
-
 FRANJAS_HORARIAS = [
     (7, 0, 9, 0),
     (18, 0, 20, 0)
 ]
 FACTOR_NORMAL = 1.0
 FACTOR_HORA_PUNTA = 1.2
-factor_hora = FACTOR_HORA_PUNTA
+PENALIZACION_DISCAPACIDAD = 3
+
+
+# INICIALIZACION DE VARIABLES
+es_discapacitado = False
+factor_hora = FACTOR_NORMAL
+
+
+# DEFINICION DE METODOS:
+
+def get_linea(u, v):
+    return LINEAS.get(frozenset({u, v}))
+
+
 
 
 def get_heuristica(start_node):
@@ -108,36 +121,48 @@ def get_heuristica(start_node):
     
         penalizacion_transbordos = 0
         penalizacion_accesibilidad = 0
-        if actual in penalizaciones_transbordo:
-            penalizacion_transbordos += penalizaciones_transbordo[actual]
-        if actual in dificil_acceso:
-            penalizacion_accesibilidad += penalizacion_discapacidad
+        if actual in PENALIZACIONES_TRASBORDO:
+            penalizacion_transbordos += PENALIZACIONES_TRASBORDO[actual]
+        
+        if es_discapacitado and actual in DIFICIL_ACCESO:
+            penalizacion_accesibilidad += PENALIZACION_DISCAPACIDAD
+        
         return h + penalizacion_transbordos + penalizacion_accesibilidad
+    
     return heuristica_final
+
+
+
 
 def penalizacion_total(path, salida):
     total = 0
     path_len = len(path)
-    if salida in dificil_acceso and es_discapacitado:
-        total += penalizacion_discapacidad
+    if salida in DIFICIL_ACCESO and es_discapacitado:
+        total += PENALIZACION_DISCAPACIDAD
     for i in range(1, path_len - 1):
         actual = path[i]
         prev = path[i - 1]
         sig = path[i + 1]
-        if actual in penalizaciones_transbordo:
+        if actual in PENALIZACIONES_TRASBORDO:
             linea_salida = get_linea(prev, actual)
             linea_llegada = get_linea(actual, sig)
             if linea_salida != linea_llegada:
-                total += penalizaciones_transbordo[actual]
+                total += PENALIZACIONES_TRASBORDO[actual]
     return total
+
+
 
 def calcular_ruta(salida, destino):
     G_temporal = Graph.copy()
-    for u, v, data in G_temporal.edges(data=True):
-        data['weight'] = data['weight'] * factor_hora
+    
+    if factor_hora == FACTOR_HORA_PUNTA:
+        for u, v, data in G_temporal.edges(data=True):
+            data['weight'] = data['weight'] * factor_hora
+
     heuristica = get_heuristica(salida)
     camino = nx.astar_path(G_temporal, salida, destino, heuristic=heuristica, weight="weight")
     dist = nx.astar_path_length(G_temporal, salida, destino, heuristic=heuristica, weight="weight")
     penalizacion = penalizacion_total(camino, salida)
     tiempo_total = dist + penalizacion
+    
     return camino, tiempo_total
