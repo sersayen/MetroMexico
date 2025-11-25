@@ -71,6 +71,9 @@ DIFICIL_ACCESO = {
     "Chapultepec", "Insurgentes", "Etiopia", "Eugenia", "Division del Norte",
     "Coyoacan", "Lazaro Cardenas", "Mixcoac"
 }
+TRASBORDOS = {
+    "Mixcoac", "Zapata", "Centro Medico", "Balderas", "Tacubuya"
+}
 
 FRANJAS_HORARIAS = [
     (7, 0, 9, 0),
@@ -131,8 +134,10 @@ def calcular_ruta(salida, destino):
     camino = nx.astar_path(G_temporal, salida, destino, heuristic=heuristica, weight="weight")
     tiempo_total = nx.astar_path_length(G_temporal, salida, destino, heuristic=heuristica, weight="weight")
 
-    if tiempo_total > PENALIZACION_DISCAPACIDAD:
-        tiempo_total = tiempo_total - PENALIZACION_DISCAPACIDAD
+    if es_discapacitado:
+        for estacion in camino:
+            if estacion in TRASBORDOS:
+                tiempo_total = tiempo_total - PENALIZACION_DISCAPACIDAD
     
     camino = limpiar_lista(camino)
 
