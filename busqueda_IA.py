@@ -53,6 +53,7 @@ Graph.add_edge("Zapata", "Hospital 20 de Noviembre", weight = 2)
 Graph.add_edge("Zapata", "Parque de los Venados", weight = 1)
 Graph.add_edge("Eje Central", "Parque de los Venados", weight = 4)
 
+#Trasbordos
 
 
 # DEFINICION DE CONSTANTES
@@ -133,7 +134,7 @@ def get_heuristica(start_node):
 
 
 
-
+""""
 def penalizacion_total(path, salida):
     total = 0
     path_len = len(path)
@@ -149,7 +150,7 @@ def penalizacion_total(path, salida):
             if linea_salida != linea_llegada:
                 total += PENALIZACIONES_TRASBORDO[actual]
     return total
-
+"""
 
 
 def calcular_ruta(salida, destino):
@@ -162,7 +163,7 @@ def calcular_ruta(salida, destino):
     heuristica = get_heuristica(salida)
     camino = nx.astar_path(G_temporal, salida, destino, heuristic=heuristica, weight="weight")
     dist = nx.astar_path_length(G_temporal, salida, destino, heuristic=heuristica, weight="weight")
-    penalizacion = penalizacion_total(camino, salida)
-    tiempo_total = dist + penalizacion
+    #penalizacion = penalizacion_total(camino, salida)
+    tiempo_total = dist #+ penalizacion
     
     return camino, tiempo_total
