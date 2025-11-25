@@ -4,7 +4,7 @@ from PIL import Image, ImageTk # añadir la imagen
 from datetime import datetime 
 import networkx as nx  # A*
 import busqueda_IA as modulo_IA  # Importamos el grafo y la función
-import os, sys
+import os, sys # Ruta imagen
 
 # encuentra la ruta de la imagen en el .exe
 def ruta_recurso(relative_path):
@@ -31,7 +31,7 @@ class MetroApp:
         frame_controles = tk.Frame(root, bg="white", width=300)
         frame_controles.pack(side="left", fill="both", expand=True)
 
-        estaciones = list(modulo_IA.Graph.nodes)
+        estaciones = sorted(modulo_IA.lista_nodos_grafo())
 
         frame_controles.grid_columnconfigure(1, weight=1)
 
@@ -94,25 +94,34 @@ class MetroApp:
         try:
             h, m = map(int, hora_str.split(':'))
             tiempo = h * 60 + m
+            
             if not(0 <= h <= 23 and 0 <= m <= 59):
                 raise ValueError("Hora/minuto fuera de rango.")
+            
             for inicio_h, inicio_m, fin_h, fin_m in modulo_IA.FRANJAS_HORARIAS:
                 inicio_min = inicio_h * 60 + inicio_m
                 fin_min = fin_h * 60 + fin_m
+                
                 if inicio_min <= tiempo < fin_min:
-                    return modulo_IA.FACTOR_HORA_PUNTA, "Hora punta"
-            return modulo_IA.FACTOR_NORMAL, "Normal"
+                    return "Hora punta"
+            
+            return "Normal"
+        
         except ValueError as e:
             messagebox.showerror("Error de hora", f"Formato invalido: {e}, usa HH:MM")
-            return None, None
+            return None
             
 
+
+
     def calcular_ruta(self):
+        
+        #obtengo datos que da el usuario
         inicio = self.estacion_inicio.get()
         destino = self.estacion_destino.get()
         hora_str = self.hora_salida.get()
 
-
+        # manejo errores de usuario
         if not(inicio and destino and hora_str):
             self.resultado_label.config(text="Debe rellenar los campos de origen, destino y hora de salida.")
             self.tiempo_label.config(text="")
@@ -129,18 +138,31 @@ class MetroApp:
             self.tiempo_label.config(text="")
             return 
         
-        factor, estado = self.hora_punta(hora_str)
+
+        # preparo por si es hora punta
+        estado = self.hora_punta(hora_str)
         
-        if factor is None:
+        if estado == None:
             return
-        
-        modulo_IA.factor_hora = factor
+        if estado == "Hora punta":
+            modulo_IA.es_hora_punta = True
+        if estado == "Normal":
+            modulo_IA.es_hora_punta = False
+
         self.afluencia_status_label.config(text=f"Afluencia: {estado}")
         
+        # calculo la ruta
         try:
             camino, tiempo_total = modulo_IA.calcular_ruta(inicio, destino)
+
+
+
+
+            
             self.resultado_label.config(text=f"Camino: {' → '.join(camino)}")
             self.tiempo_label.config(text=f"Tiempo total: {tiempo_total:} min")
+        
+        
         except nx.NetworkXNoPath:
             self.resultado_label.config(text="No existe ruta entre estas estaciones")
             self.tiempo_label.config(text="")

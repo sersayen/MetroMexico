@@ -1,5 +1,5 @@
 :: pip install pyinstaller
-
+::pip3 install networkx
 
 @echo off
 echo creando ejecutable...
