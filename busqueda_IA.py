@@ -128,7 +128,7 @@ def calcular_ruta(salida, destino):
         es_trasbordo = u_limpia == v_limpia
         if es_trasbordo and es_discapacitado and u_limpia in DIFICIL_ACCESO:
             data["weight"] = data["weight"] + PENALIZACION_DISCAPACIDAD/2
-        if (u == salida or u == destino) or (v == salida or v == destino):
+        if es_trasbordo and (u == salida or u == destino) or (v == salida or v == destino):
             data["weight"] = 0
     
     heuristica = get_heuristica(salida)
@@ -136,8 +136,6 @@ def calcular_ruta(salida, destino):
     tiempo_total = nx.astar_path_length(G_temporal, salida, destino, heuristic=heuristica, weight="weight")
     
     camino = limpiar_lista(camino)
-    for nodo in camino:
-        print(nodo)
     
     if es_discapacitado:
         for estacion in camino:
