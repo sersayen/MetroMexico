@@ -1,4 +1,4 @@
-import networkx as nx # A+
+import networkx as nx # A*
 import re # Regular Expresions 
 
 # CREACION DE GRAFO
@@ -72,7 +72,7 @@ DIFICIL_ACCESO = {
     "Coyoacan", "Lazaro Cardenas", "Mixcoac"
 }
 TRASBORDOS = {
-    "Mixcoac", "Zapata", "Centro Medico", "Balderas", "Tacubuya"
+    "Mixcoac", "Zapata", "Centro Medico", "Balderas", "Tacubaya"
 }
 
 FRANJAS_HORARIAS = [
@@ -120,25 +120,29 @@ def get_heuristica(start_node):
 def calcular_ruta(salida, destino):
     G_temporal = Graph.copy()
     
-    if es_hora_punta or es_discapacitado:
-        for u, v, data in G_temporal.edges(data=True):
-            if es_hora_punta:
-                data['weight'] = data['weight'] * FACTOR_HORA_PUNTA
-            u_limpia = limpiar_nombre(u)
-            v_limpia = limpiar_nombre(v)
-            es_trasbordo = (u_limpia == v) or (v_limpia == u)
-            if es_trasbordo and es_discapacitado and u_limpia in DIFICIL_ACCESO:
-                data["weight"] = data["weight"] + PENALIZACION_DISCAPACIDAD/2
-
+    for u, v, data in G_temporal.edges(data=True):
+        if es_hora_punta:
+            data['weight'] = data['weight'] * FACTOR_HORA_PUNTA
+        u_limpia = limpiar_nombre(u)
+        v_limpia = limpiar_nombre(v)
+        es_trasbordo = u_limpia == v_limpia
+        if es_trasbordo and es_discapacitado and u_limpia in DIFICIL_ACCESO:
+            data["weight"] = data["weight"] + PENALIZACION_DISCAPACIDAD/2
+        if (u == salida or u == destino) or (v == salida or v == destino):
+            data["weight"] = 0
+    
     heuristica = get_heuristica(salida)
     camino = nx.astar_path(G_temporal, salida, destino, heuristic=heuristica, weight="weight")
     tiempo_total = nx.astar_path_length(G_temporal, salida, destino, heuristic=heuristica, weight="weight")
-
-    if es_discapacitado:
-        for estacion in camino:
-            if estacion in TRASBORDOS:
-                tiempo_total = tiempo_total - PENALIZACION_DISCAPACIDAD
     
     camino = limpiar_lista(camino)
+    for nodo in camino:
+        print(nodo)
+    
+    if es_discapacitado:
+        for estacion in camino:
+            if estacion != salida and estacion != destino and estacion in DIFICIL_ACCESO and estacion in TRASBORDOS:
+                tiempo_total = tiempo_total - PENALIZACION_DISCAPACIDAD
+     
 
     return camino, tiempo_total

@@ -155,9 +155,6 @@ class MetroApp:
         try:
             camino, tiempo_total = modulo_IA.calcular_ruta(inicio, destino)
 
-
-
-
             
             self.resultado_label.config(text=f"Camino: {' → '.join(camino)}")
             self.tiempo_label.config(text=f"Tiempo total: {tiempo_total:} min")
