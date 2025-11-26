@@ -1,4 +1,4 @@
-import tkinter as tk # interfaz
+import tkinter as tk # interfaz 
 from tkinter import ttk, messagebox 
 from PIL import Image, ImageTk # añadir la imagen
 from datetime import datetime 
