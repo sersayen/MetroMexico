@@ -136,11 +136,11 @@ def calcular_ruta(salida, destino):
     tiempo_total = nx.astar_path_length(G_temporal, salida, destino, heuristic=heuristica, weight="weight")
     
     camino = limpiar_lista(camino)
-    
+    tiempo_total= round(tiempo_total, 2)
+
     if es_discapacitado:
         for estacion in camino:
             if estacion != salida and estacion != destino and estacion in DIFICIL_ACCESO and estacion in TRASBORDOS:
                 tiempo_total = tiempo_total - PENALIZACION_DISCAPACIDAD
      
-
     return camino, tiempo_total
