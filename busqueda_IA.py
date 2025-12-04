@@ -128,7 +128,7 @@ def calcular_ruta(salida, destino):
         es_trasbordo = u_limpia == v_limpia
         if es_trasbordo and es_discapacitado and u_limpia in DIFICIL_ACCESO:
             data["weight"] = data["weight"] + PENALIZACION_DISCAPACIDAD/2
-        if es_trasbordo and (u == salida or u == destino) or (v == salida or v == destino):
+        if es_trasbordo and ((u == salida or u == destino) or (v == salida or v == destino)):
             data["weight"] = 0
     
     heuristica = get_heuristica(salida)
